@@ -1,91 +1,100 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 public class Calculator extends JFrame implements ActionListener {
 
-    private JTextField inputField, outputField;
-    private JButton factorialButton, sqrtButton, powerButton, logButton;
+    private JTextField textField;
+    private JButton[] buttons;
+    private String[] buttonLabels = {
+            "1", "2", "3", "+",
+            "4", "5", "6", "-",
+            "7", "8", "9", "*",
+            ".", "0", "=", "/",
+            "x!", "x^y", "sqrt", "ln"
+    };
 
     public Calculator() {
-        super("Calculator");
+        setTitle("Calculator");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(300, 300);
+        setLayout(new BorderLayout());
 
-        // create the input and output fields
-        inputField = new JTextField(10);
-        outputField = new JTextField(10);
-        outputField.setEditable(false);
+        // Add text field for input and display
+        textField = new JTextField();
+        add(textField, BorderLayout.NORTH);
 
-        // create the buttons
-        factorialButton = new JButton("Factorial");
-        sqrtButton = new JButton("Square Root");
-        powerButton = new JButton("Power");
-        logButton = new JButton("Natural Log");
+        // Add number pad buttons
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 4));
+        buttons = new JButton[buttonLabels.length];
 
-        // add action listeners to the buttons
-        factorialButton.addActionListener(this);
-        sqrtButton.addActionListener(this);
-        powerButton.addActionListener(this);
-        logButton.addActionListener(this);
+        for (int i = 0; i < buttonLabels.length; i++) {
+            buttons[i] = new JButton(buttonLabels[i]);
+            buttons[i].addActionListener(this);
+            buttonPanel.add(buttons[i]);
+        }
 
-        // create the input panel
-        JPanel inputPanel = new JPanel();
-        inputPanel.add(new JLabel("Enter a number:"));
-        inputPanel.add(inputField);
+        add(buttonPanel, BorderLayout.CENTER);
 
-        // create the output panel
-        JPanel outputPanel = new JPanel();
-        outputPanel.add(new JLabel("Result:"));
-        outputPanel.add(outputField);
-
-        // create the button panel
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(2, 2));
-        buttonPanel.add(factorialButton);
-        buttonPanel.add(sqrtButton);
-        buttonPanel.add(powerButton);
-        buttonPanel.add(logButton);
-
-        // add the panels to the frame
-        Container contentPane = getContentPane();
-        contentPane.setLayout(new GridLayout(3, 1));
-        contentPane.add(inputPanel);
-        contentPane.add(buttonPanel);
-        contentPane.add(outputPanel);
-
-        // set the size and show the frame
-        setSize(300, 200);
         setVisible(true);
     }
 
-    // handle button clicks
-    public void actionPerformed(ActionEvent event) {
-        try {
-            // get the input number
-            double input = Double.parseDouble(inputField.getText());
+    public void actionPerformed(ActionEvent e) {
+        String label = e.getActionCommand();
 
-            // calculate and display the result
-            if (event.getSource() == factorialButton) {
-                long result = factorial((int)input);
-                outputField.setText(Long.toString(result));
-            } else if (event.getSource() == sqrtButton) {
-                double result = Math.sqrt(input);
-                outputField.setText(Double.toString(result));
-            } else if (event.getSource() == powerButton) {
-                double result = Math.pow(input, 2);
-                outputField.setText(Double.toString(result));
-            } else if (event.getSource() == logButton) {
-                double result = Math.log(input);
-                outputField.setText(Double.toString(result));
+        // Handle number pad input
+        if (label.matches("\\d") || label.equals(".")) {
+            textField.setText(textField.getText() + label);
+        } else {
+            // Parse input number
+            double num = Double.parseDouble(textField.getText());
+
+            // Perform selected operation
+            switch (label) {
+                case "+":
+                    textField.setText("");
+                    textField.setText(String.valueOf(num + Double.parseDouble(textField.getText())));
+                    break;
+                case "-":
+                    textField.setText("");
+                    textField.setText(String.valueOf(num - Double.parseDouble(textField.getText())));
+                    break;
+                case "*":
+                    textField.setText("");
+                    textField.setText(String.valueOf(num * Double.parseDouble(textField.getText())));
+                    break;
+                case "/":
+                    textField.setText("");
+                    textField.setText(String.valueOf(num / Double.parseDouble(textField.getText())));
+                    break;
+                case "x!":
+                    textField.setText("");
+                    textField.setText(String.valueOf(factorial(num)));
+                    break;
+                case "x^y":
+                    textField.setText("");
+                    textField.setText(String.valueOf(Math.pow(num, Double.parseDouble(textField.getText()))));
+                    break;
+                case "sqrt":
+                    textField.setText("");
+                    textField.setText(String.valueOf(Math.sqrt(num)));
+                    break;
+                case "ln":
+                    textField.setText("");
+                    textField.setText(String.valueOf(Math.log(num)));
+                    break;
+                case "=":
+                    // Do nothing
+                    break;
+                default:
+                    // Do nothing
+                    break;
             }
-        } catch (NumberFormatException e) {
-            // display an error message if the input is not a number
-            JOptionPane.showMessageDialog(this, "Invalid input. Please enter a number.");
         }
     }
 
-    // calculate the factorial of a number
-    private long factorial(int n) {
-        if (n <= 1) {
+    public static double factorial(double n) {
+        if (n == 0 || n == 1) {
             return 1;
         } else {
             return n * factorial(n - 1);
@@ -93,6 +102,6 @@ public class Calculator extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        new Calculator();
+        Calculator calculator = new Calculator();
     }
 }
